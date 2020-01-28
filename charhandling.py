@@ -3,7 +3,7 @@
 ################################
 
 # note: only returns True for actual Chinese characters/radicals,
-# including those that are only used as kanji or hanji
+# including those that are only used as kanji or hanja
 # but NOT for kana/hangul/punctuation/raw strokes/weird duplicates/etc
 def is_hanzi(char):
     # checks if the codepoint is within a CJK block as per https://en.wikipedia.org/wiki/Unicode_block

@@ -204,6 +204,4 @@ def load_pinyin(path="pinyin.json"):
     except Exception as e:
         print("Failed to load cedict JSON:", e)
         return False
-    return pinyin
-
 
