@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# there was a reason for using temporary files instead of pipes/stdin,
+# but I dont remember if it still applies. ah well, this works for now.
 TMPFILE=$(mktemp)
 
 pdftotext "$1" $TMPFILE
