@@ -117,6 +117,11 @@ class Database:
             if since_last > 0:
                 since_last = math.log2(since_last + 1)
 
+            # hack: if the character hasn't been used at all, drastically increase
+            # the since_last multiplier to try to ensure unused characters come first.
+            if used == 0:
+                since_last *= 16
+
             scores.append((occur_score * 2 + used_score) * since_last)
             charlist.append(c)
 

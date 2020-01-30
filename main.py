@@ -31,7 +31,7 @@ def feb_revision(db):
                 n_pages,
                 pinyin,
                 open(path, 'w'),
-                "February 2020 Revision",
+                "February Revision",
                 date)
     
     print("Done")
@@ -63,7 +63,12 @@ def feb_revision(db):
     if max_dupes > 1:
         print("Note: the maximum number of duplicates is {}".format(max_dupes - 1))
 
-    return False # don't update the db for now until we make it work properly
+    should_commit = False
+    if input("Commit to database? (Y/N) ").lower().startswith('y'):
+        should_commit = True
+        print("Will update database.")
+
+    return should_commit
 
 ########
 # Main #
