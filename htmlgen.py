@@ -30,7 +30,7 @@ def charsheet(chars, n_boxes, n_pages,
     # generate start of HTML page including CSS
     f.write(\
 """<!DOCTYPE html>
-<html>
+<html lang="zh">
 <head><title>{} {}</title>
 <style>
 table {{
