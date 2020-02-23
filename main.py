@@ -3,9 +3,11 @@
 # Very hacky spaced repetition character practice system for Chinese.
 
 import sys, datetime
+import os
 
 from database import *
 import htmlgen
+import cedict
 
 # special generator for February revision pack
 def feb_revision(db):
@@ -70,6 +72,32 @@ def feb_revision(db):
 
     return should_commit
 
+# generate summaries for any labels that don't already have a summary/label.html
+def gen_summaries(db):
+    dir_path = "summaries/"
+
+    defs = cedict.load()
+
+    if not os.path.isdir(dir_path):
+        # if old directory doesn't exist, create it
+        os.mkdir(dir_path)
+
+    for h, [label, chars] in db.input_hashes.items():
+        if label == '?' or not len(chars):
+            continue # skip ? label and empty chars
+
+        path = dir_path + label + ".htm"
+
+        if os.path.isfile(path):
+            print("Summary for", label, "exists")
+            continue # skip existing summaries
+
+        htmlgen.summary(chars, defs, open(path, 'w'), "Summary for " + label)
+        print("Generated", path)
+
+    return False
+
+
 ########
 # Main #
 ########
@@ -99,6 +127,9 @@ def main(db):
             print("Path of file to add and label for this file required.")
             return False
         return db.add_text(sys.argv[2], sys.argv[3])
+
+    elif sys.argv[1] == "summary":
+        return gen_summaries(db)
     
     elif sys.argv[1] == "dump":
         print(db.__dict__)

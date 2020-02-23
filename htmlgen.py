@@ -151,7 +151,7 @@ a {{
 <body><table>
 <tr><th>词</th><th>拼音</th><th>定义</th></tr>""".format(title))
    
-    # generate rows for each character
+    # generate rows for each entry
     for word in words:
         row = '<tr><td class="c">'
         for c in word:

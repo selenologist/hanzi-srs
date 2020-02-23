@@ -15,8 +15,8 @@ tones = {
 # the cedict file normally has pinyin in a numbered format, e.g. 'shi4'
 # convert this to the accent format, e.g. 'shì', also keeping the number too
 def add_accents(syl):
-    # force syllable lowercase
-    syl = syl.lower()
+    # force syllable lowercase and convert 'u:' into 'ü' 
+    syl = syl.lower().replace('u:','ü')
 
     tone = syl[-1]
     if tone.isdigit():
