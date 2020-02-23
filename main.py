@@ -95,10 +95,10 @@ def main(db):
             return True
 
     elif sys.argv[1] == "add":
-        if len(sys.argv) < 3:
-            print("Path of file to add required.")
+        if len(sys.argv) < 4:
+            print("Path of file to add and label for this file required.")
             return False
-        return db.add_text(sys.argv[2])
+        return db.add_text(sys.argv[2], sys.argv[3])
     
     elif sys.argv[1] == "dump":
         print(db.__dict__)

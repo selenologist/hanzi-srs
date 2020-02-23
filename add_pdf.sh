@@ -6,5 +6,5 @@ TMPFILE=$(mktemp)
 
 pdftotext "$1" $TMPFILE
 echo "Generated $TMPFILE"
-python3 main.py add $TMPFILE
+python3 main.py add $TMPFILE "$2"
 rm $TMPFILE

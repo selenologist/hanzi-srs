@@ -21,12 +21,16 @@ DB_PATH = "db.pickle"
 #   These are used to score characters, so that the most frequently used characters that haven't
 #   been selected recently are most likely to be selected.
 #   Note that it's a list instead of a tuple so that we can update part of it more conveniently.
+# "first_seen":
+#   Dict of characters to labels of the document where this character was seen for the first time.
 # "max_used":
 #   How many times the most frequently used character has been used.
 # "max_occurrences":
 #   Highest times_occurred value.
 # "input_hashes":
-#   Set of SHA512 hashes of input files, so that files don't get loaded more than once.
+#   Dict of of SHA512 hashes of input files to a list containing the file's label and a list
+#   of new characters introduced in this file.
+#   Prevents files from being loaded more than once and helps keep track of introduced characters.
 # "blacklist":
 #   Characters which should never be generated (because they are too easy or whatever)
 
@@ -38,9 +42,10 @@ class Database:
     def __init__(self):
         self.cycle           = 0
         self.chars           = dict()
+        self.first_seen      = dict()
         self.max_used        = 1
         self.max_occurrences = 0
-        self.input_hashes    = set()
+        self.input_hashes    = dict()
         self.blacklist       = set()
 
     #####################
@@ -48,7 +53,7 @@ class Database:
     #####################
 
     # adds unique characters from a file to the db, if the file is not in input_hashes
-    def add_text(db, path, override_hashing = False):
+    def add_text(db, path, label, override_hashing = False):
         # read the file's bytes into memory
         try:
             with open(path, 'rb') as f: # binary mode, do not convert to text yet
@@ -61,10 +66,10 @@ class Database:
             # hash the file and check if we've already added it
             sha512 = hashlib.sha512(data).digest()
             if sha512 in db.input_hashes:
-                print("File already in database!")
+                print("File already in database! Label:", db.input_hashes[sha512][0])
                 return False
             # we haven't added it yet, so store its hash now
-            db.input_hashes.add(sha512)
+            db.input_hashes[sha512] = [label]
 
         # decode the file as utf8
         try:
@@ -76,17 +81,25 @@ class Database:
         # get rid of the undecoded version now, might free some memory
         del data
 
+        # characters first seen in this text
+        new_characters = []
+
         # iterate over each character, incrementing the count in the db for matching characters
         for c in text:
             if is_hanzi(c):
                 if c not in db.chars:
                     # first time we've seen this character
                     db.chars[c] = [1, 0, 0] # seen once, never selected, considered last used on cycle 0
+                    db.first_seen[c] = label
+                    new_characters.append(c)
                 else:
                     occ = db.chars[c][TIMES_OCCURRED] + 1 # seen once more
                     db.chars[c][TIMES_OCCURRED] = occ
                     if occ > db.max_occurrences:
                         db.max_occurrences = occ
+
+        if not override_hashing: # do this check to prevent possible KeyError
+            db.input_hashes[sha512].append(new_characters)
 
         return True
 
