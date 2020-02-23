@@ -2,8 +2,17 @@
 # between e.g. regional variants.
 # This was used on my website to show the differences in Adobe Source Han Serif between
 # Simplified Chinese and Japanese.
+#
 # Note that this only shows variations for the same unicode code point, not characters that are
 # different between e.g. Simplified and Shinjitai in general.
+#
+# The CMapResources files are also used to find non-IVS variant characters, and also to filter out
+# variants that map to the same CID.
+#
+# The relevant files can be obtained from https://github.com/adobe-fonts/source-han-serif, namely:
+#   1. SourceHanSerif_JP_sequences.txt
+#   2. UniSourceHanSerifCN-UTF32-H
+#   3. UniSourceHanSerifJP-UTF32-H
 
 import math
 import re
@@ -220,10 +229,11 @@ span {{
 
         # obtain character for codepoint
         char = chr(codepoint)
+
         # get selectors from the variant data (zero-length if no variant data present)
-        selectors = [data[0] for data in variant_data if int(data[2]) != cmap_base[codepoint]]
+        selectors = [data[0] for data in variant_data]
         # get sequences from the variant data (zero-length if no variant data present)
-        sequences = [data[2] for data in variant_data if int(data[2]) != cmap_base[codepoint]]
+        sequences = [data[2] for data in variant_data]
         
         # get characters with each Variant Selector added to it (or just the char if no selectors)
         variants = char if not cids_equal else ""
@@ -232,6 +242,7 @@ span {{
 
         # obtain codepoint as a string formatted like "U+<hex>"
         codepoint_str = "U+" + tohex(codepoint)
+
         # get selector numbers as a comma-separated string
         sels = ",".join([str(sel_number(sel)) for sel in selectors]) if len(selectors) else "N/A"
         
