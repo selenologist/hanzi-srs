@@ -41,6 +41,11 @@ table {{
     border-collapse: collapse;
     margin: 0px;
     padding: 0px;
+    page-break-inside:auto;
+}}
+tr {{
+    page-break-inside:avoid;
+    page-break-after:auto;
 }}
 td {{
     border: 1px solid black;
@@ -54,6 +59,7 @@ td {{
 a {{
     color: black;
     text-decoration: none;
+    font-family: "FandolFang R", fangsong, serif;
 }}
 .p {{
     display: block;
@@ -191,7 +197,7 @@ a {{
 
                 row = "<tr><td>↑</td>"
         else:
-            sys.stderr.write("no pinyin found for {}\n".format(word))
+            sys.stderr.write("no definition found for {}\n".format(word))
     # finally terminate the HTML page
     f.write("</table></body></html>")
 
