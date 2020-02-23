@@ -141,7 +141,6 @@ def gen_variations_html(ivs_chars, cmap_base, cmap_variant,
                 return math.inf
     
     # will contain, in order, (codepoint, [list of (selector, collection, sequence)]) tuples.
-    # the collection and sequence parts of the tuple in the chars dict are ignored.
     # if the codepoint is not in ivs_chars, there will just be an empty list instead of the
     # data that usually comes from the ivs file.
     sorted_chars = []
