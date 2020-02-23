@@ -1,5 +1,6 @@
 import os
 import pickle, json
+import math
 
 # Information about the composition of 汉字 is stored in a dict mapping characters to a list:
 # [[composition_type, left_parent, right_parent], descendants_left, descendants_right, num_strokes]
@@ -295,3 +296,74 @@ def find_special(radicals):
     for char in find_roots(radicals):
         if radicals[char][NUM_STROKES_INDEX] == 0:
             yield char
+
+# deduplicate an iterable, preserving the original order
+# OP = Order Preserving
+# (turns out the program doesn't use this, but it's kept in case it's useful from a REPL)
+def op_dedupe(iterable):
+    seen = set()
+    for v in iterable:
+        if v not in seen:
+            seen.add(v)
+            yield v
+
+# enumerate all characters sorted by radicals, and optionally filtered by an object with a
+# __contains__ method; specifically, characters not in it will be skipped.
+def enumerate_sorted(radicals, whitelist=None):
+    if not whitelist:
+        class ContainsEverything:
+            def __contains__(self, _):
+                return True
+        whitelist = ContainsEverything()
+   
+    seen = set()
+
+    # sort by stroke count, putting special (zero-stroke) radicals at the end
+    def stroke_sort(iterable):
+        def key(v):
+            s = radicals[v][NUM_STROKES_INDEX]
+            if s == 0:
+                return math.inf
+            else:
+                return s
+
+        return sorted(iterable, key=key)
+
+    # left-then-right breadth-first-ish search
+    # firstly all left-branches are explored breadth-first, while right-branches are also queued
+    # for later.
+    # After exhausting all left-branches, the previously-queued right-branches are explored.
+    # Previously unseen characters have their branches added to the respective queues.
+    # This process repeats until there are no longer any characters in either queue.
+    def explore_lr_bfs(start):
+        lq = [start]
+        rq = [start]
+
+        def do_queued(v):
+            if v not in seen:
+                seen.add(v)
+
+                lq.extend(stroke_sort(radicals[v][DESCENDANT_LEFT_INDEX]))
+                rq.extend(stroke_sort(radicals[v][DESCENDANT_RIGHT_INDEX]))
+
+                # skip non-whitelisted and special radicals
+                if v in whitelist and radicals[v][NUM_STROKES_INDEX]:
+                    return v
+                else:
+                    return None
+
+        while len(lq) + len(rq) > 0:
+            while len(lq) > 0:
+                v = lq.pop(0)
+                v = do_queued(v)
+                if v:
+                    yield v
+            while len(rq) > 0:
+                v = rq.pop(0)
+                v = do_queued(v)
+                if v:
+                    yield v
+
+    # descend down each root seperately, ordered by stroke count
+    for root in stroke_sort(find_roots(radicals)):
+        yield from explore_lr_bfs(root)
