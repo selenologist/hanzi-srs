@@ -72,7 +72,7 @@ a {{
             # if a dictionary is present, look up the pinyin for the character
             py = '?'
             if c in pinyin:
-                py = pinyin[c]
+                py = pinyin[c][0] # use the first definition available
             else:
                 sys.stderr.write("no pinyin found for {}\n".format(c))
 
