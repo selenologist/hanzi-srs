@@ -66,7 +66,15 @@ class Database:
             # hash the file and check if we've already added it
             sha512 = hashlib.sha512(data).digest()
             if sha512 in db.input_hashes:
-                print("File already in database! Label:", db.input_hashes[sha512][0])
+                print("File already in database! Label: '{}'".format(db.input_hashes[sha512][0]))
+                choice = input("Change label to '{}' (Y/N)?: ".format(label))
+                if choice.lower().startswith('y'):
+                    db.input_hashes[sha512][0] = label
+                    for char in db.input_hashes[sha512][1]:
+                        db.first_seen[char] = label
+                    print("Changed.")
+                    return True
+                print("Unchanged.")
                 return False
             # we haven't added it yet, so store its hash now
             db.input_hashes[sha512] = [label]
